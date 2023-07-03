@@ -210,7 +210,7 @@
 ;; (put 'clear-string 'elsa-type (elsa-make-type ))
 ;; (put 'nconc 'elsa-type (elsa-make-type ))
 ;; TODO: generic
-(put 'mapconcat 'elsa-type (elsa-make-type (function ((function (mixed) string) (list mixed) string) string)))
+(put 'mapconcat 'elsa-type (elsa-make-type (function ((function (mixed) string) sequence string) string)))
 ;; (put 'mapcar 'elsa-type (elsa-make-type ))
 ;; (put 'mapc 'elsa-type (elsa-make-type ))
 (put 'yes-or-no-p 'elsa-type (elsa-make-type (function (string) bool)))
