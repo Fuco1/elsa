@@ -89,17 +89,18 @@ The bottom layer is the last in the list."
                  "'" (group (+? (or word (syntax symbol))))
                  (*? whitespace) ")")
                 nil t)
-          (unless (or (nth 4 (syntax-ppss))
-                      (and (< 0 (car (syntax-ppss)))
-                           (not (and (= 1 (car (syntax-ppss)))
-                                     (save-excursion
-                                       (backward-up-list)
-                                       (down-list)
-                                       (looking-at-p "eval-"))))) )
-            (let* ((library-name (match-string 1))
-                   (library (elsa--find-dependency library-name)))
-              (when library
-                (push (list library library-name) this-file-requires)))))))
+          (let ((syntax-ppss-data (save-match-data (syntax-ppss))))
+            (unless (or (nth 4 syntax-ppss-data)
+                        (and (< 0 (car syntax-ppss-data))
+                             (not (and (= 1 (car syntax-ppss-data))
+                                       (save-excursion
+                                         (backward-up-list)
+                                         (down-list)
+                                         (looking-at-p "eval-"))))) )
+              (let* ((library-name (match-string 1))
+                     (library (elsa--find-dependency library-name)))
+                (when library
+                  (push (list library library-name) this-file-requires))))))))
     (nreverse this-file-requires)))
 
 (defun elsa--get-dep-alist (file &optional current-library state)
