@@ -173,8 +173,9 @@ The BINDING should have one of the following forms:
     (-each bindings
       (lambda (binding)
         (let ((variable (elsa--analyse-variable-from-binding binding scope state)))
-          (push variable new-vars)
-          (elsa-scope-add-var scope variable))))
+          (when variable
+            (push variable new-vars)
+            (elsa-scope-add-var scope variable)))))
     (if (not body)
         (oset form type (elsa-type-nil))
       (elsa--analyse-body body scope state)
