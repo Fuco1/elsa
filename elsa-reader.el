@@ -296,6 +296,44 @@ prefix and skipped by the sexp scanner.")
    :sequence (-map (lambda (f) (elsa--read-form f state)) form)
    :end (progn (up-list) (point))))
 
+(defclass elsa-form-bool-vector (elsa-form-seq)
+  ((sequence :type list :initarg :sequence)))
+
+(cl-defmethod elsa-form-print ((this elsa-form-bool-vector))
+  (format "[%s]" (mapconcat 'elsa-form-print (oref this sequence) " ")))
+
+(cl-defmethod elsa-form-to-lisp ((this elsa-form-bool-vector))
+  (apply #'bool-vector (mapcar #'elsa-form-to-lisp (oref this sequence))))
+
+(cl-defmethod elsa-form-foreach ((this elsa-form-bool-vector) fn)
+  (mapc fn (oref this sequence)))
+
+(cl-defmethod elsa-form-map ((this elsa-form-bool-vector) fn)
+  (mapcar fn (oref this sequence)))
+
+(cl-defmethod elsa-form-visit ((this elsa-form-bool-vector) fn)
+  (funcall fn this)
+  (elsa-form-foreach this (lambda (x) (elsa-form-visit x fn))))
+
+(cl-defmethod elsa-form-sequence ((this elsa-form-bool-vector))
+  (oref this sequence))
+
+(defsubst elsa--read-bool-vector (form)
+  (elsa--skip-whitespace-forward)
+  (let ((end (elsa--forward-sexp)))
+    (elsa-form-bool-vector
+     :type (elsa-make-type (vector bool))
+     :start (point)
+     :sequence (-map
+                (lambda (b)
+                  (elsa-form-symbol
+                   :type (elsa-make-type bool)
+                   :start (point)
+                   :end end
+                   :name b))
+                form)
+     :end end)))
+
 ;;; Conses
 (defclass elsa-form-cons (elsa-form) ())
 
@@ -861,6 +899,16 @@ for the analysis."
                  (oset f previous previous)
                  (setq previous f)))
              vector-form))
+          ((bool-vector-p form)
+           (let ((bool-vector-form (elsa--read-bool-vector form))
+                 (previous nil))
+             (elsa-form-foreach bool-vector-form
+               (lambda (f)
+                 (oset f parent bool-vector-form)
+                 ;; first one is set to nil
+                 (oset f previous previous)
+                 (setq previous f)))
+             bool-vector-form))
           ((functionp form) (elsa--read-function form state))
           (t (error "Invalid form")))))
     (elsa--set-line-and-column reader-form)

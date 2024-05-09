@@ -105,6 +105,9 @@ adds the information that a fallback was used."
 (defun elsa--analyse-vector (_form _scope _state)
   nil)
 
+(defun elsa--analyse-bool-vector (_form _scope _state)
+  nil)
+
 (defun elsa--analyse-string (_form _scope _state)
   nil)
 
@@ -1183,6 +1186,7 @@ FORM is a result of `elsa-read-form'."
    ((elsa-form-keyword-p form) (elsa--analyse-keyword form scope state))
    ((elsa-form-symbol-p form) (elsa--analyse-symbol form scope state))
    ((elsa-form-vector-p form) (elsa--analyse-vector form scope state))
+   ((elsa-form-bool-vector-p form) (elsa--analyse-bool-vector form scope state))
    ((elsa-form-string-p form) (elsa--analyse-string form scope state))
    ((elsa-form-list-p form) (elsa--analyse-list form scope state))
    ((elsa-form-improper-list-p form) (elsa--analyse-improper-list form scope state))
